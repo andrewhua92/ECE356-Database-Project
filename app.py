@@ -2,7 +2,9 @@ import argparse
 import mysql.connector
 import json
 
-# cnx = mysql.connector(user="a5hua", password="password", host="", database="marmoset04.shoshin.uwaterloo.ca")
+# replace password with actual password, can now run queries and see results!
+cnx = mysql.connector.connect(user="a5hua", password="", host="marmoset04.shoshin.uwaterloo.ca", database="NHL_Plain")
+query_content = cnx.cursor()
 
 # argument parsing structure. this is where will define inputs for user and modify whether they're positional, optional, typed, etc
 parser = argparse.ArgumentParser(description="US 2020 Elections Application")
@@ -45,5 +47,12 @@ if __name__ == "__main__":
             print("Tweet selection:")
             print("Please choose what you want to know")
             
+        query_content.execute("SHOW TABLES;")
+
+        results = query_content.fetchall()
+
+        for result in results:
+            print(result)
+
 
     # cnx.close()
