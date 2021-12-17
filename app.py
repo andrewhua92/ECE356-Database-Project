@@ -8,7 +8,7 @@ config = configparser.ConfigParser()
 config.read('./config.ini')
 
 # replace password with actual password, can now run queries and see results!
-cnx = mysql.connector.connect(user=config['MYSQL']['USER'], password=config['MYSQL']['PASSWORD'], host=config['MYSQL']['HOST'], database=config['MYSQL']['DATABASE'])
+cnx = mysql.connector.connect(user=config['MYSQL']['USER'], password=config['MYSQL']['PASSWORD'], host=config['MYSQL']['HOST'], port=config['MYSQL']['PORT'], database=config['MYSQL']['DATABASE'])
 query_content = cnx.cursor()
 
 # argument parsing structure. this is where will define inputs for user and modify whether they're positional, optional, typed, etc
@@ -52,7 +52,7 @@ if __name__ == "__main__":
             print("Tweet selection:")
             print("Please choose what you want to know")
             
-        query_content.execute("DESCRIBE Game;")
+        query_content.execute("DESCRIBE Persons;")
 
         results = query_content.fetchall()
 
