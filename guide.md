@@ -26,20 +26,23 @@ Password: `password`
 ## Loading Mysql DB
 Please note, you have to download the following .csv's from Kaggle:\
 https://www.kaggle.com/manchunhui/us-election-2020-tweets\
-hashtag_donaldtrump.csv
+hashtag_donaldtrump.csv\
 hashtag_joebiden.csv\
-https://www.kaggle.com/etsc9287/2020-general-election-polls
-county_statistics.csv
-trump_biden_polls.csv
+https://www.kaggle.com/etsc9287/2020-general-election-polls\
+county_statistics.csv\
+trump_biden_polls.csv\
 trump_clinton_polls.csv\
-https://www.kaggle.com/unanimad/us-election-2020
-president_county_candidate.csv
-president_county.csv
+https://www.kaggle.com/unanimad/us-election-2020\
+president_county_candidate.csv\
+president_county.csv\
 president_state.csv
 
 You can also run the script to downloads. Before doing this, please run the following export commands.\
 `export KAGGLE_USERNAME=andrewhua90`\
 `export KAGGLE_KEY=91db567e6efba3e4b746b5b77a28728e`
+
+The downloading script can be run as follows:\
+`bash kaggle_download.txt`
 
 Copying files over example:
 `docker cp hashtag_donaldtrump.csv <name_of_container>:/hashtag_donaldtrump.csv`

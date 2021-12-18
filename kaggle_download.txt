@@ -1,0 +1,17 @@
+echo "Downloading files now."
+kaggle datasets download manchunhui/us-election-2020-tweets -f hashtag_donaldtrump.csv &&
+kaggle datasets download manchunhui/us-election-2020-tweets -f hashtag_joebiden.csv && 
+kaggle datasets download etsc9287/2020-general-election-polls -f county_statistics.csv &&
+kaggle datasets download etsc9287/2020-general-election-polls -f trump_biden_polls.csv && 
+kaggle datasets download etsc9287/2020-general-election-polls -f trump_clinton_polls.csv &&
+kaggle datasets download unanimad/us-election-2020 -f president_county.csv && 
+kaggle datasets download unanimad/us-election-2020 -f president_county_candidate.csv &&
+kaggle datasets download unanimad/us-election-2020 -f president_state.csv && 
+unzip hashtag_donaldtrump.csv.zip &&
+unzip hashtag_joebiden.csv.zip &&
+unzip county_statistics.csv.zip &&
+unzip trump_biden_polls.csv.zip &&
+unzip trump_clinton_polls.csv.zip &&
+unzip president_county_candidate.csv.zip &&
+rm *.zip &&
+echo "Downloading completed."
