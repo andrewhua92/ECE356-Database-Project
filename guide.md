@@ -8,6 +8,12 @@ https://medium.com/swlh/how-to-connect-to-mysql-docker-from-python-application-o
 `docker exec -it ece356_db mysql --local-infile=1 -u root -p`
 `docker exec -it <name_of_container> mysql --local-infile=1 -u root -p`
 
+Within the MySQL instance, please run these to create a new database and user:
+`mysql> CREATE DATABASE test_db`
+`mysql> use test_db`
+`mysql> CREATE USER 'user1' IDENTIFIED BY 'password'`
+`mysql> GRANT ALL PRIVILEGES on test_db.* to 'user1'`
+
 User: `user1`
 Password: `password`
 
