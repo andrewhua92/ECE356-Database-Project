@@ -129,7 +129,7 @@ CREATE TABLE trump_biden_polls (
     display_name VARCHAR(255),
     pollster_rating_id INT NOT NULL,
     polster_rating_name VARCHAR(255),
-    fte_grade VARCHAR(1),
+    fte_grade VARCHAR(2),
     sample_size INT,
     population VARCHAR(2),
     population_full VARCHAR(2),
@@ -158,6 +158,20 @@ CREATE TABLE trump_biden_polls (
     pct DECIMAL(4,2)
 );
 
+CREATE TABLE trump_clinton_polls (
+    id INT NOT NULL,
+    start_date DATE,
+    end_date DATE,
+    state VARCHAR(50),
+    pollster VARCHAR(255),
+    fte_grade VARCHAR(2),
+    sample_size INT,
+    population VARCHAR(2),
+    clinton_pct DECIMAL(4,2),
+    trump_pct DECIMAL(4,2),
+    dem_lead DECIMAL(6,4)
+);
+
 LOAD DATA LOCAL INFILE 'county_statistics.csv'
 INTO TABLE county_statistics
 FIELDS TERMINATED BY ','
@@ -167,6 +181,57 @@ IGNORE 1 ROWS;
 
 LOAD DATA LOCAL INFILE 'trump_biden_polls.csv'
 INTO TABLE trump_biden_polls
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;
+
+LOAD DATA LOCAL INFILE 'trump_clinton_polls.csv'
+INTO TABLE trump_clinton_polls
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;
+
+-- Creating tables for the US 2020 Election Results for the president
+CREATE TABLE president_county_candidate (
+    state VARCHAR(50),
+    county VARCHAR(50),
+    candidate VARCHAR(50),
+    party VARCHAR(3),
+    total_votes INT,
+    won BOOLEAN
+);
+
+CREATE TABLE president_county (
+    state VARCHAR(50),
+    county VARCHAR(50),
+    current_votes INT,
+    total_votes INT,
+    percent DECIMAL(5,2)
+);
+
+CREATE TABLE president_state (
+    state VARCHAR(50),
+    votes INT
+);
+
+LOAD DATA LOCAL INFILE 'president_county_candidate.csv'
+INTO TABLE president_county_candidate
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;
+
+LOAD DATA LOCAL INFILE 'president_county.csv'
+INTO TABLE president_county
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;
+
+LOAD DATA LOCAL INFILE 'president_state.csv'
+INTO TABLE president_state
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
