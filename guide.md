@@ -5,8 +5,8 @@ Download Docker. Ensure WSL is updated. Ensure WSL is WSL2, otherwise, go conver
 
 https://medium.com/swlh/how-to-connect-to-mysql-docker-from-python-application-on-macos-mojave-32c7834e5afa
 
-`docker exec -it ece356_db mysql -u root -p`
-`docker exec -it <name_of_container> mysql --local-infile=1  -u root -p`
+`docker exec -it ece356_db mysql --local-infile=1 -u root -p`
+`docker exec -it <name_of_container> mysql --local-infile=1 -u root -p`
 
 User: `user1`
 Password: `password`
@@ -26,3 +26,4 @@ and the additional overhead of burdensome string lenghts.
 
 Accessing directory of Docker container to verify contents:
 `docker exec -it <name_of_container> /bin/bash`
+`docker exec -it ece356_db /bin/bash`
