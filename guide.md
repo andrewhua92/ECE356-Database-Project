@@ -1,5 +1,8 @@
 Download Docker. Ensure WSL is updated. Ensure WSL is WSL2, otherwise, go convert it.
 
+`docker pull mysql:latest`
+`docker run --name=ece356_db --env="MYSQL_ROOT_PASSWORD=root_password" -p 3306:3306 -d mysql:latest`
+
 https://medium.com/swlh/how-to-connect-to-mysql-docker-from-python-application-on-macos-mojave-32c7834e5afa
 
 `docker exec -it ece356_db mysql -u root -p`
@@ -20,3 +23,6 @@ Viewing a row to verify proper insertion (MySQL query):
 
 This will bring a vertical view that will be significantly easier to read considering the large number of columns,
 and the additional overhead of burdensome string lenghts.
+
+Accessing directory of Docker container to verify contents:
+`docker exec -it <name_of_container> /bin/bash`
