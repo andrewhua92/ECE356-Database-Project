@@ -14,13 +14,15 @@ To setup the Mysql instance within docker run the following in WSL/terminal:\
 `docker exec -it ece356_db mysql --local-infile=1 -u root -p`\
 [Source](https://medium.com/swlh/how-to-connect-to-mysql-docker-from-python-application-on-macos-mojave-32c7834e5afa)
 
+When prompted for password, please use `root_password`.
+
 Within the MySQL instance, please run these to create a new database and user:\
 `mysql> CREATE DATABASE test_db;`\
 `mysql> use test_db`\
 `mysql> CREATE USER 'user1' IDENTIFIED BY 'password';`\
 `mysql> GRANT ALL PRIVILEGES on test_db.* to 'user1';`
 
-User: `user1`
+User: `user1`\
 Password: `password`
 
 ## Loading Mysql DB
@@ -37,14 +39,14 @@ president_county_candidate.csv\
 president_county.csv\
 president_state.csv
 
-You can also run the script to downloads. Before doing this, please run the following export commands.\
+You can also run the script to download the CSVs. Before doing this, please run the following export commands.\
 `export KAGGLE_USERNAME=andrewhua90`\
-`export KAGGLE_KEY=91db567e6efba3e4b746b5b77a28728e`
+`export KAGGLE_KEY=a3c022f62ad2fb27456311be107d29d6`
 
 The downloading script can be run as follows:\
 `bash kaggle_download.txt`
 
-Copying files over example:
+We need to copy over files onto the Docker container. Here's a copying files over example:
 `docker cp hashtag_donaldtrump.csv <name_of_container>:/hashtag_donaldtrump.csv`
 
 This needs to be done as the files do not exist locally within the Docker instance.
@@ -58,7 +60,8 @@ If you get the following error message: `ERROR 3948 (42000): Loading local data 
 You can fix this issue by running\
 `mysql> SET GLOBAL local_infile=1;`\
 `mysql> quit`\
-`docker exec -it ece356_db mysql --local-infile=1  -u root -p`
+`docker exec -it ece356_db mysql --local-infile=1  -u root -p`\
+
 Now run the table_creation.sql again.
 
 

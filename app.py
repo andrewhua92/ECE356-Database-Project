@@ -26,6 +26,8 @@ if __name__ == "__main__":
     # print(args.state)
     # print(args.action)
 
+    query = "show databases;"
+
     # we want to ensure that whatever state we inputted is a valid one (we ask users to input abbrev for sake of brevity)
     with open('./US_states.json') as f:
         state_name_data = json.load(f)
@@ -42,6 +44,16 @@ if __name__ == "__main__":
         if (input_action == "loser"):
             placeholder = "trump lol"
             print("Determining: " + input_action)
+
+            # because of how the president_county_candidate CSV is, determining winner should be through
+            # whoever has biggest number of counties won in a state (first past the post)
+            # WIP query
+            query = f"""SELECT DISTINCT candidate FROM president_county_candidate WHERE
+                        state = '{input_state_full}' and
+                        COUNT(won) =  MAX(COUNT(won)) FROM (SELECT COUNT(won) FROM president_county_candidate WHERE
+                            state = '{input_state_full}'
+                        )
+                    """
             print("Loser in this state of " + input_state_full + " is " + placeholder)
         elif (input_action == "winner"):
             placeholder = "not trump lol"
@@ -52,7 +64,7 @@ if __name__ == "__main__":
             print("Tweet selection:")
             print("Please choose what you want to know")
             
-        query_content.execute("DESCRIBE Persons;")
+        query_content.execute(query)
 
         results = query_content.fetchall()
 
