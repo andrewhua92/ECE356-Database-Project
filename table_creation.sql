@@ -3,15 +3,15 @@ CREATE TABLE hashtag_donaldtrump (
     created_at DATETIME NOT NULL,
     tweet_id DOUBLE NOT NULL,
     tweet VARCHAR(1000) NOT NULL,
-    likes INT NOT NULL,
-    retweet_count INT,
+    likes INT NOT NULL DEFAULT 0,
+    retweets INT NOT NULL DEFAULT 0,
     source VARCHAR(50),
     user_id DOUBLE NOT NULL,
     user_name VARCHAR(50),
     user_screen_name VARCHAR(50),
     user_description VARCHAR(255),
     user_join_date DATETIME,
-    user_followers_count INT,
+    followers INT NOT NULL DEFAULT 0,
     user_location VARCHAR(255),
     lat DECIMAL(5,2),
     lng DECIMAL(5,2),
@@ -27,15 +27,15 @@ CREATE TABLE hashtag_joebiden (
     created_at DATETIME NOT NULL,
     tweet_id DOUBLE NOT NULL,
     tweet VARCHAR(1000) NOT NULL,
-    likes INT NOT NULL,
-    retweet_count INT,
+    likes INT NOT NULL DEFAULT 0,
+    retweets INT NOT NULL DEFAULT 0,
     source VARCHAR(50),
     user_id DOUBLE NOT NULL,
     user_name VARCHAR(50),
     user_screen_name VARCHAR(50),
     user_description VARCHAR(255),
     user_join_date DATETIME,
-    user_followers_count INT,
+    followers INT NOT NULL DEFAULT 0,
     user_location VARCHAR(255),
     lat DECIMAL(5,2),
     lng DECIMAL(5,2),
@@ -52,6 +52,7 @@ LOAD DATA LOCAL INFILE 'hashtag_donaldtrump.csv'
 INTO TABLE hashtag_donaldtrump
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
+ESCAPED BY '\b'
 LINES TERMINATED BY '\n'
 IGNORE 1 ROWS;
 
@@ -59,6 +60,7 @@ LOAD DATA LOCAL INFILE 'hashtag_joebiden.csv'
 INTO TABLE hashtag_joebiden
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
+ESCAPED BY '\b'
 LINES TERMINATED BY '\n'
 IGNORE 1 ROWS;
 
