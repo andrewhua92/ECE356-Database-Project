@@ -18,12 +18,15 @@ parser.add_argument('action', default="winner", help="Enter the action you would
 parser.add_argument('-s', '--state', help="Enter the state you would like to know about.")
 parser.add_argument('-c','--candidate', help="The candidate that you would like to know about. Please use 'jb' for Joe Biden or 'dt' for Donald Trump.")
 parser.add_argument('-g', '--granular', help="Specifies specific property to look up for the 'tweet' action.")
+parser.add_argument('-d', '--date', default="20", help="Year that will be used for checking polling data.")
 args = parser.parse_args()
 
 # where the magic happens. the main that runs everything
 if __name__ == "__main__":
     if args.state:
         input_state = args.state.upper()
+    else:
+        input_state = None
     if args.candidate:
         temp = args.candidate.lower()
         if temp == "jb":
@@ -46,8 +49,11 @@ if __name__ == "__main__":
         # python in this current version probably doesn't have switch case still, so we will use if/else instead
         # within each action, we will custom build a query to the MYSQL server
         if (input_action == "loser"):
-            if input_state not in state_name_data:
+            if input_state and input_state not in state_name_data:
                 raise Exception("Sorry, incorrect state abbreviation.")
+            elif not input_state:
+                print("Loser of the 2020 US election was Donald Trump.")
+                exit()
 
             input_state_full = state_name_data[input_state]
             print("Selected state: " + state_name_data[input_state])
@@ -80,8 +86,11 @@ if __name__ == "__main__":
 
             print("Loser in " + input_state_full + " is " + placeholder)
         elif (input_action == "winner"):
-            if input_state not in state_name_data:
+            if input_state and input_state not in state_name_data:
                 raise Exception("Sorry, incorrect state abbreviation.")
+            elif not input_state:
+                print("Winner of the 2020 US election was Joe Biden.")
+                exit()
 
             input_state_full = state_name_data[input_state]
             print("Selected state: " + state_name_data[input_state])
@@ -226,7 +235,60 @@ if __name__ == "__main__":
                 employment_granular = ["employed","privatework","publicwork","selfemployed","familywork","unemployment"]
 
                 query = ""
+            # this will only consider voting % differences (which can help see differences) 
             else:
-                query = ""
+                print(")")
+
+        elif (input_action == "polling"):
+
+            if input_state not in state_name_data:
+                raise Exception("Sorry, incorrect state abbreviation.")
+
+            input_state_full = state_name_data[input_state]
+
+            print("Determining: " + input_action)
+
+            print("Selected state: " + state_name_data[input_state])
+
+            if args.date == "20":
+                tableQuery = "trump_biden_"
+            
+                query=f"""SELECT candidate_name, sum(sample_size * pct / 10) FROM {tableQuery}polls
+                    WHERE state = '{input_state_full}' 
+                    GROUP BY candidate_name
+                    ORDER BY SUM(sample_size*pct/10) desc limit 3
+                """
+
+                query_content.execute(query)
+
+                results = query_content.fetchall()
+
+                print("Polling data for the US 2020 Election in " + input_state_full + " across all polls, in descending order of votes.")
+
+                for result in results:
+                    name, votes = result
+                    votes = round(votes)
+                    print(name + " with " + str(votes) + " votes")
+                # print(results)
+            elif args.date == "16":
+                tableQuery = "trump_clinton_"
+                query=f"""SELECT SUM(clinton_pct*sample_size) as Clinton, SUM(trump_pct*sample_size) as Trump FROM trump_clinton_polls
+                    WHERE state = '{input_state_full}'
+                """
+
+                query_content.execute(query)
+
+                results = query_content.fetchall()
+
+                clintonVotes = results[0][0]
+                clintonVotes = round(clintonVotes)
+                trumpVotes = results[0][1]
+                trumpVotes = round(trumpVotes)
+
+                print("Polling data for the US 2016 Election in " + input_state_full + " across all polls.")
+                print("Donald Trump with " + str(trumpVotes) + " votes.")
+                print("Hillary Clinton with " + str(clintonVotes) + " votes.")
+            else:
+                raise Exception("Invalid date for polling information. Please use either 16 or 20.")
 
         # f.close()
