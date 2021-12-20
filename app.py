@@ -194,7 +194,6 @@ if __name__ == "__main__":
                             print("\"" + tweet + "\"")
                             print("The tweet was made by " + name + ", posted in "  + state + " at " + created_at.strftime("%c"))
             else:
-
                 if input_state not in state_name_data:
                     raise Exception("Sorry, incorrect state abbreviation.")
 
@@ -218,6 +217,12 @@ if __name__ == "__main__":
 
             print("Determining: " + input_action)
 
+            if input_state not in state_name_data:
+                raise Exception("Sorry, incorrect state abbreviation.")
+
+            input_state_full = state_name_data[input_state]
+            print("Selected state: " + state_name_data[input_state])
+
             # talk about differentials from '16 to '20, and % of population that voted based on a demographic
             if args.granular:
                 granular = args.granular.lower()
@@ -234,10 +239,64 @@ if __name__ == "__main__":
                 transportation_granular = ["drive", "carpool", "transit", "walk", "othertransp","workathome","meancommute"]
                 employment_granular = ["employed","privatework","publicwork","selfemployed","familywork","unemployment"]
 
-                query = ""
+                granular_query = ""
+                if granular in ethnic_granular or granular in occupation_granular or granular in transportation_granular or granular in employment_granular:
+                    granular_query = f"AVG({granular}) as demographic"
+                elif granular in gender_granular:
+                    granular_query = f"(SUM({granular}) / SUM(TotalPop) * 100) as demographic"
+                
+                query = f"""SELECT AVG(percentage20_Donald_Trump),
+                        AVG(percentage16_Donald_Trump),
+                        (AVG(percentage20_Donald_Trump) - AVG(percentage16_Donald_Trump)) * 100 as Rep_pct, 
+                        AVG(percentage20_Joe_Biden),
+                        AVG(percentage16_Hillary_Clinton),
+                        (AVG(percentage20_Joe_Biden)-AVG(percentage16_Hillary_Clinton)) * 100 as Dem_pct,
+                        AVG(votes20_Donald_Trump),
+                        AVG(votes16_Donald_Trump), 
+                        (SUM(votes20_Donald_Trump) - SUM(votes16_Donald_Trump)) as Rep_votes, 
+                        AVG(votes20_Joe_Biden),
+                        AVG(votes16_Hillary_Clinton),
+                        (SUM(votes20_Joe_Biden)-SUM(votes16_Hillary_Clinton)) as Dem_votes,
+                        {granular_query}
+                        FROM county_statistics 
+                        WHERE state = '{input_state}' 
+                """
+
+                query_content.execute(query)
+
+                results = query_content.fetchall()
+
+                # print(results)
+                avg_rep_pct_20, avg_rep_pct_16, avg_rep_pct_diff, avg_dem_pct_20, avg_dem_pct_16, avg_dem_pct_diff, avg_rep_votes_20,avg_rep_votes_16, avg_rep_votes_diff, avg_dem_votes_20, avg_dem_votes_16, avg_dem_votes_diff, granular_pct = results[0]
+                
+                # print(granular_pct, avg_rep_pct_20, avg_rep_pct_16, avg_rep_pct_diff, 
+                # avg_dem_pct_20, avg_dem_pct_16, avg_dem_pct_diff, avg_rep_votes_20,
+                # avg_rep_votes_16, avg_rep_votes_diff, avg_dem_votes_20, avg_dem_votes_16,
+                # avg_dem_votes_diff)
+                if granular in ethnic_granular or granular in occupation_granular or granular in transportation_granular or granular in employment_granular:
+                    print("For the US 2020 Election, the " + granular + " demographic votes in " + input_state_full + " represented " + str(granular_pct) + "% of all votes.")
+                elif granular in gender_granular:
+                    print("For the US 2020 Election, votes by " + granular + " in " + input_state_full + " represented " + str(granular_pct) + "% of all votes.")
+
+
+                print("Overall, here are some statistics of differences in voting turnout given the above demographic.")
+                print("Note, these are on an average county basis for the state of " + input_state_full)
+                print("Average percentage of voters for Republicans in 2020: " + str(avg_rep_pct_20) + " %.")
+                print("Average percentage of voters for Republicans in 2016: " + str(avg_rep_pct_16) + " %.")
+                print("Average percentage of voters for Republicans difference: " + str(avg_rep_pct_diff) + " %.")
+                print("Average percentage of voters for Democrats in 2020: " + str(avg_dem_pct_20) + " %.")
+                print("Average percentage of voters for Democrats in 2016: " + str(avg_dem_pct_16) + " %.")
+                print("Average percentage of voters for Democrats difference: " + str(avg_dem_pct_diff) + " %.")
+                print("Average number of voters for Republicans in 2020: " + str(avg_rep_votes_20) + " %.")
+                print("Average number of voters for Republicans in 2016: " + str(avg_rep_votes_16) + " %.")
+                print("Average number of voters for Republicans difference: " + str(avg_rep_votes_diff) + " %.")
+                print("Average number of voters for Democrats in 2020: " + str(avg_dem_votes_20) + " %.")
+                print("Average number of voters for Democrats in 2016: " + str(avg_dem_votes_16) + " %.")
+                print("Average number of voters for Democrats difference: " + str(avg_dem_votes_diff) + " %.")
+
             # this will only consider voting % differences (which can help see differences) 
             else:
-                print(")")
+                raise Exception("Wrong type of demographic.")
 
         elif (input_action == "polling"):
 

@@ -116,7 +116,7 @@ CREATE TABLE county_statistics (
     PublicWork DECIMAL(3,1),
     SelfEmployed DECIMAL(3,1),
     FamilyWork DECIMAL(3,1),
-    Unnemployment DECIMAL(3,1)
+    Unemployment DECIMAL(3,1)
 );
 
 CREATE TABLE trump_biden_polls (
