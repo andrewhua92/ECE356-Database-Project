@@ -227,11 +227,12 @@ if __name__ == "__main__":
             if args.granular:
                 granular = args.granular.lower()
 
-                granular_options = ["covid","men","women","hispanic","white","black","native","asian","pacific",
+                granular_options = ["cases","deaths","men","women","hispanic","white","black","native","asian","pacific",
                 "poverty","childpoverty","votingagecitizen", "income", "professional", "service", "office",
                 "construction", "production", "drive", "carpool", "transit", "walk", "othertransp","workathome",
                 "meancommute","employed","privatework","publicwork","selfemployed","familywork","unemployment"]
 
+                covid_granular = ["cases", "deaths"]
                 gender_granular = ["men", "women"]
                 ethnic_granular = ["hispanic","white","black","native","asian","pacific"]
                 wealth_granular = ["poverty","childpoverty","votingagecitizen", "income"]
@@ -287,12 +288,12 @@ if __name__ == "__main__":
                 print("Average percentage of voters for Democrats in 2020: " + str(avg_dem_pct_20) + " %.")
                 print("Average percentage of voters for Democrats in 2016: " + str(avg_dem_pct_16) + " %.")
                 print("Average percentage of voters for Democrats difference: " + str(avg_dem_pct_diff) + " %.")
-                print("Average number of voters for Republicans in 2020: " + str(avg_rep_votes_20) + " %.")
-                print("Average number of voters for Republicans in 2016: " + str(avg_rep_votes_16) + " %.")
-                print("Average number of voters for Republicans difference: " + str(avg_rep_votes_diff) + " %.")
-                print("Average number of voters for Democrats in 2020: " + str(avg_dem_votes_20) + " %.")
-                print("Average number of voters for Democrats in 2016: " + str(avg_dem_votes_16) + " %.")
-                print("Average number of voters for Democrats difference: " + str(avg_dem_votes_diff) + " %.")
+                print("Average number of voters for Republicans in 2020: " + str(avg_rep_votes_20) + ".")
+                print("Average number of voters for Republicans in 2016: " + str(avg_rep_votes_16) + ".")
+                print("Average number of voters for Republicans difference: " + str(avg_rep_votes_diff) + ".")
+                print("Average number of voters for Democrats in 2020: " + str(avg_dem_votes_20) + ".")
+                print("Average number of voters for Democrats in 2016: " + str(avg_dem_votes_16) + ".")
+                print("Average number of voters for Democrats difference: " + str(avg_dem_votes_diff) + ".")
 
             # this will only consider voting % differences (which can help see differences) 
             else:
@@ -328,7 +329,6 @@ if __name__ == "__main__":
                     name, votes = result
                     votes = round(votes)
                     print(name + " with " + str(votes) + " votes")
-                # print(results)
             elif args.date == "16":
                 tableQuery = "trump_clinton_"
                 query=f"""SELECT SUM(clinton_pct*sample_size) as Clinton, SUM(trump_pct*sample_size) as Trump FROM trump_clinton_polls

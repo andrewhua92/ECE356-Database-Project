@@ -1,4 +1,29 @@
 -- Creating table for the tweet API metadata
+CREATE TABLE tweet {
+    party VARCHAR(3),
+    created_at DATETIME NOT NULL,
+    tweet_id DOUBLE NOT NULL,
+    tweet VARCHAR(1000) NOT NULL,
+    likes INT NOT NULL DEFAULT 0,
+    retweets INT NOT NULL DEFAULT 0,
+    source VARCHAR(50),
+    user_id DOUBLE NOT NULL,
+    user_name VARCHAR(50),
+    user_screen_name VARCHAR(50),
+    user_description VARCHAR(255),
+    user_join_date DATETIME,
+    followers INT NOT NULL DEFAULT 0,
+    user_location VARCHAR(255),
+    lat DECIMAL(5,2),
+    lng DECIMAL(5,2),
+    city VARCHAR(255),
+    country VARCHAR(255),
+    continent VARCHAR(255),
+    state VARCHAR(255),
+    state_code VARCHAR(2),
+    collected_at DATETIME
+};
+
 CREATE TABLE hashtag_donaldtrump (
     created_at DATETIME NOT NULL,
     tweet_id DOUBLE NOT NULL,
@@ -65,7 +90,7 @@ LINES TERMINATED BY '\n'
 IGNORE 1 ROWS;
 
 -- Creating table for the 2020 general election data, and previous election data (demographics included for now)
-CREATE TABLE county_statistics (
+CREATE TABLE county_statistics_all (
     id INT NOT NULL,
     county VARCHAR(255) NOT NULL,
     state VARCHAR(2) NOT NULL,
@@ -81,6 +106,64 @@ CREATE TABLE county_statistics (
     votes20_Joe_Biden INT,
     lat DECIMAL(5,2),
     lng DECIMAL(5,2),
+    cases INT,
+    deaths INT,
+    TotalPop INT,
+    Men INT,
+    Women INT,
+    Hispanic DECIMAL(3,1),
+    White DECIMAL(3,1),
+    Black DECIMAL(3,1),
+    Native DECIMAL(3,1),
+    Asian DECIMAL(3,1),
+    Pacific DECIMAL(3,1),
+    VotingAgeCitizen INT,
+    Income DECIMAL(9,2),
+    IncomeErr DECIMAL(6,2),
+    IncomePerCap DECIMAL(9,2),
+    IncomePerCapErr DECIMAL(6,2),
+    Poverty DECIMAL(3,1),
+    ChildPoverty DECIMAL (3,1),
+    Professional DECIMAL(3,1),
+    Service DECIMAL(3,1),
+    Office DECIMAL(3,1),
+    Construction DECIMAL(3,1),
+    Production DECIMAL(3,1),
+    Drive DECIMAL(3,1),
+    Carpool DECIMAL(3,1),
+    Transit DECIMAL(3,1),
+    Walk DECIMAL(3,1),
+    OtherTransp DECIMAL(3,1),
+    WorkAtHome DECIMAL(3,1),
+    MeanCommute DECIMAL(3,1),
+    Employed DECIMAL(3,1),
+    PrivateWork DECIMAL(3,1),
+    PublicWork DECIMAL(3,1),
+    SelfEmployed DECIMAL(3,1),
+    FamilyWork DECIMAL(3,1),
+    Unemployment DECIMAL(3,1)
+);
+
+CREATE TABLE county_statistics (
+    county VARCHAR(255) NOT NULL,
+    state VARCHAR(2) NOT NULL,
+    percentage16_Donald_Trump DECIMAL(4,3),
+    percentage16_Hillary_Clinton DECIMAL(4,3),
+    total_votes16 INT,
+    votes16_Donald_Trump INT,
+    votes16_Hillary_Clinton INT,
+    percentage20_Donald_Trump DECIMAL(4,3),
+    percentage20_Joe_Biden DECIMAL(4,3),
+    total_votes20 INT,
+    votes20_Donald_Trump INT,
+    votes20_Joe_Biden INT,
+    lat DECIMAL(5,2),
+    lng DECIMAL(5,2)
+);
+
+CREATE TABLE demographics (
+    county VARCHAR(255) NOT NULL,
+    state VARCHAR(2) NOT NULL,
     cases INT,
     deaths INT,
     TotalPop INT,
@@ -175,11 +258,27 @@ CREATE TABLE trump_clinton_polls (
 );
 
 LOAD DATA LOCAL INFILE 'county_statistics.csv'
-INTO TABLE county_statistics
+INTO TABLE county_statistics_all
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 IGNORE 1 ROWS;
+
+INSERT INTO county_statistics
+(county, state, percentage16_Donald_Trump, percentage16_Hillary_Clinton, total_votes16, votes16_Donald_Trump, votes16_Hillary_Clinton,
+percentage20_Donald_Trump, percentage20_Joe_Biden, total_votes20, votes20_Donald_Trump, votes20_Joe_Biden, lat, lng)
+SELECT county, state, percentage16_Donald_Trump, percentage16_Hillary_Clinton, total_votes16, votes16_Donald_Trump, votes16_Hillary_Clinton,
+percentage20_Donald_Trump, percentage20_Joe_Biden, total_votes20, votes20_Donald_Trump, votes20_Joe_Biden, lat, lng 
+FROM county_statistics_all;
+
+INSERT INTO demographics 
+(county, state, cases, deaths, TotalPop, Men, Women, Hispanic, White, Black, Native, Asian, Pacific, VotingAgeCitizen, Income, IncomeErr,
+IncomePerCap, IncomePerCapErr, Poverty, ChildPoverty, Professional, Service, Office, Construction, Production, Drive, Carpool, Transit,
+Walk, OtherTransp, WorkAtHome, MeanCommute, Employed, PrivateWork, SelfEmployed, FamilyWork, Unemployment)
+SELECT county, state, cases, deaths, TotalPop, Men, Women, Hispanic, White, Black, Native, Asian, Pacific, VotingAgeCitizen, Income, IncomeErr,
+IncomePerCap, IncomePerCapErr, Poverty, ChildPoverty, Professional, Service, Office, Construction, Production, Drive, Carpool, Transit,
+Walk, OtherTransp, WorkAtHome, MeanCommute, Employed, PrivateWork, SelfEmployed, FamilyWork, Unemployment
+FROM county_statistics_all;
 
 LOAD DATA LOCAL INFILE 'trump_biden_polls.csv'
 INTO TABLE trump_biden_polls
