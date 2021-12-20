@@ -42,34 +42,60 @@ if __name__ == "__main__":
         # python in this current version probably doesn't have switch case still, so we will use if/else instead
         # within each action, we will custom build a query to the MYSQL server
         if (input_action == "loser"):
-            placeholder = "trump lol"
             print("Determining: " + input_action)
 
             # because of how the president_county_candidate CSV is, determining winner should be through
             # whoever has biggest number of counties won in a state (first past the post)
             # WIP query
-            query = f"""SELECT DISTINCT candidate FROM president_county_candidate WHERE
-                        state = '{input_state_full}' and
-                        COUNT(won) =  MAX(COUNT(won)) FROM (SELECT COUNT(won) FROM president_county_candidate WHERE
-                            state = '{input_state_full}'
-                        )
-                    """
-            print("Loser in this state of " + input_state_full + " is " + placeholder)
+            query = f"""WITH voteCount AS
+                            (SELECT candidate, SUM(total_votes) AS votes FROM president_county_candidate WHERE
+                                state = '{input_state_full}'
+                                GROUP BY candidate
+                                ORDER BY SUM(total_votes) DESC)
+
+                        SELECT candidate FROM voteCount WHERE
+                            votes = (SELECT MAX(votes) FROM voteCount);
+            """
+
+            query_content.execute(query)
+
+            results = query_content.fetchall()
+
+            placeholder = results[0][0]
+
+            if (placeholder == "Joe Biden"):
+                placeholder = "Donald Trump"
+            else:
+                placeholder = "Joe Biden"
+
+            print("Winner in " + input_state_full + " is " + placeholder)
         elif (input_action == "winner"):
-            placeholder = "not trump lol"
             print("Determining: " + input_action)
-            print("Winner in this state of " + input_state_full + " is " + placeholder)
+
+            query = f"""WITH voteCount AS
+                            (SELECT candidate, SUM(total_votes) AS votes FROM president_county_candidate WHERE
+                                state = '{input_state_full}'
+                                GROUP BY candidate
+                                ORDER BY SUM(total_votes) DESC)
+
+                        SELECT candidate FROM voteCount WHERE
+                            votes = (SELECT MAX(votes) FROM voteCount);
+            """
+
+            query_content.execute(query)
+
+            results = query_content.fetchall()
+
+            # results returns a list of tuples, hence, the double array precision
+            placeholder = results[0][0]
+
+            print("Winner in " + input_state_full + " is " + placeholder)
         elif (input_action == "tweets"):
             # we can try to move the overhead of this into the actual arg parser so it'll be easier to sanitize
             print("Tweet selection:")
             print("Please choose what you want to know")
             
-        query_content.execute(query)
 
-        results = query_content.fetchall()
-
-        for result in results:
-            print(result)
 
 
     # cnx.close()

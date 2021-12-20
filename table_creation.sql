@@ -128,7 +128,7 @@ CREATE TABLE trump_biden_polls (
     sponsors VARCHAR(255),
     display_name VARCHAR(255),
     pollster_rating_id INT NOT NULL,
-    polster_rating_name VARCHAR(255),
+    pollster_rating_name VARCHAR(255),
     fte_grade VARCHAR(2),
     sample_size INT,
     population VARCHAR(2),
@@ -184,7 +184,14 @@ INTO TABLE trump_biden_polls
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
-IGNORE 1 ROWS;
+IGNORE 1 ROWS
+(question_id, poll_id, cycle, state, pollster_id, pollster, sponsor_ids, sponsors, display_name, pollster_rating_id, pollster_rating_name, fte_grade,
+sample_size, population, population_full, methodology, office_type, seat_number, seat_name, start_date, end_date, election_date, sponsor_candidate,
+@var24, partisan, @var26, @var27, @var28, created_at, notes, url, stage, race_id, answer, candidate_id, candidate_name, candidate_party, pct)
+SET internal = (@var24 = 'true' or @var24 = 'TRUE'),
+tracking = (@var26 = 'true' or @var26 = 'TRUE'),
+nationwide_batch = (@var27 = 'true' or @var27 = 'TRUE'),
+ranked_choice_reallocated = (@var28 = 'true' or @var28 = 'TRUE');
 
 LOAD DATA LOCAL INFILE 'trump_clinton_polls.csv'
 INTO TABLE trump_clinton_polls
@@ -221,7 +228,9 @@ INTO TABLE president_county_candidate
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
-IGNORE 1 ROWS;
+IGNORE 1 ROWS
+(state, county, candidate, party, total_votes, @var6)
+SET won = (@var6 = 'True');
 
 LOAD DATA LOCAL INFILE 'president_county.csv'
 INTO TABLE president_county
