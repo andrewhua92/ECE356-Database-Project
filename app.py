@@ -16,9 +16,13 @@ query_content = cnx.cursor()
 parser = argparse.ArgumentParser(description="US 2020 Elections Application")
 parser.add_argument('action', default="winner", help="Enter the action you would like to use for this application.")
 parser.add_argument('-s', '--state', help="Enter the state you would like to know about.")
-parser.add_argument('-c','--candidate', help="The candidate that you would like to know about. Please use 'jb' for Joe Biden or 'dt' for Donald Trump.")
-parser.add_argument('-g', '--granular', help="Specifies specific property to look up for the 'tweet' action.")
+parser.add_argument('-c', '--county', help="Enter the county you would like to know about or reference.")
+parser.add_argument('-p', '--presidental_candidate', help="The candidate that you would like to know about. Please use 'jb' for Joe Biden or 'dt' for Donald Trump.")
+parser.add_argument('-g', '--granular', help="Specifies specific property to look up in different actions.")
 parser.add_argument('-d', '--date', default="20", help="Year that will be used for checking polling data.")
+parser.add_argument('-n', '--note', help="Used to append a note to a county to store in the database.")
+parser.add_argument('-r', '--remove', action='store_true',help="Pass this flag in conjunction with the append function to remove the referenced note for current county.")
+parser.set_defaults(remove=False)
 args = parser.parse_args()
 
 # where the magic happens. the main that runs everything
@@ -27,12 +31,12 @@ if __name__ == "__main__":
         input_state = args.state.upper()
     else:
         input_state = None
-    if args.candidate:
-        temp = args.candidate.lower()
+    if args.presidental_candidate:
+        temp = args.presidental_candidate.lower()
         if temp == "jb":
-            candidate = "Joe Biden"
+            presidental_candidate = "Joe Biden"
         else:
-            candidate = "Donald Trump"
+            presidental_candidate = "Donald Trump"
     input_action = args.action.lower()
 
     # print(args.state)
@@ -125,7 +129,7 @@ if __name__ == "__main__":
             print("Winner in " + input_state_full + " is " + placeholder)
 
         # Input action: tweets
-        # Flags: -c, -g (optional), -s (optional)
+        # Flags: -p, -g (optional), -s (optional)
         # Provides information about a specific candidate (Joe or Donald)
         # Can lower scope to the state level
         # Can be explicit in determining the 'most' of a property of a tweet (i.e. likes, retweets, etc)
@@ -133,13 +137,13 @@ if __name__ == "__main__":
 
             print("Determining: " + input_action) 
 
-            if not args.candidate:
+            if not args.presidental_candidate:
                 raise Exception("Sorry, no candidate provided for tweet information. Please use -h for more info.")
 
             if args.granular:
                 granular = args.granular
 
-                tableQuery = "joebiden" if candidate == "Joe Biden" else "donaldtrump"
+                tableQuery = "joebiden" if presidental_candidate == "Joe Biden" else "donaldtrump"
 
                 granular_options = ["likes", "retweets", "followers", "country", "continent", "city", "state"]
                 metadata_options = ["likes", "retweets", "followers"]
@@ -168,7 +172,7 @@ if __name__ == "__main__":
                             if granular == "followers":
                                 reword = " from user"
 
-                            print("The tweet about " + candidate + reword + " with the most " + granular + " of a count of " + str(granular_val) + " is: ")
+                            print("The tweet about " + presidental_candidate + reword + " with the most " + granular + " of a count of " + str(granular_val) + " is: ")
                             print("\"" + tweet + "\"")
                             print("The tweet was made by " + name + ", posted in " + state + " at " + created_at.strftime("%c"))
                         else:
@@ -204,7 +208,7 @@ if __name__ == "__main__":
                             if granular == "followers":
                                 reword = " from user"
 
-                            print("The tweet about " + candidate + reword + " with the most " + granular + " of a count of " + str(granular_val) + " in " + input_state_full + " is: ")
+                            print("The tweet about " + presidental_candidate + reword + " with the most " + granular + " of a count of " + str(granular_val) + " in " + input_state_full + " is: ")
                             print("\"" + tweet + "\"")
                             print("The tweet was made by " + name + ", posted in "  + state + " at " + created_at.strftime("%c"))
             else:
@@ -214,7 +218,7 @@ if __name__ == "__main__":
                 input_state_full = state_name_data[input_state]
                 print("Selected state: " + state_name_data[input_state])
 
-                tableQuery = "joebiden" if candidate == "Joe Biden" else "donaldtrump"
+                tableQuery = "joebiden" if presidental_candidate == "Joe Biden" else "donaldtrump"
 
                 query = f"""SELECT count(*) FROM hashtag_{tableQuery} 
                         WHERE state = '{input_state_full}';
@@ -226,7 +230,7 @@ if __name__ == "__main__":
 
                 placeholder = str(results[0][0])
 
-                print("The number of tweets about " + candidate + " in " + input_state_full + " is " + placeholder)
+                print("The number of tweets about " + presidental_candidate + " in " + input_state_full + " is " + placeholder)
 
         # Input action: demographics
         # Flags: -g, -s
@@ -286,7 +290,8 @@ if __name__ == "__main__":
 
                 results = query_content.fetchall()
 
-                avg_rep_pct_20, avg_rep_pct_16, avg_rep_pct_diff, avg_dem_pct_20, avg_dem_pct_16, avg_dem_pct_diff, avg_rep_votes_20,avg_rep_votes_16, avg_rep_votes_diff, avg_dem_votes_20, avg_dem_votes_16, avg_dem_votes_diff, granular_pct = results[0]
+                avg_rep_pct_20, avg_rep_pct_16, avg_rep_pct_diff, avg_dem_pct_20, avg_dem_pct_16, avg_dem_pct_diff, avg_rep_votes_20,avg_rep_votes_16,\
+                avg_rep_votes_diff, avg_dem_votes_20, avg_dem_votes_16, avg_dem_votes_diff, granular_pct = results[0]
 
                 if granular in ethnic_granular or granular in occupation_granular or granular in transportation_granular or granular in employment_granular:
                     print("For the US 2020 Election, the " + granular + " demographic votes in " + input_state_full + " represented " + str(granular_pct) + "% of all votes.")
@@ -366,5 +371,267 @@ if __name__ == "__main__":
                 print("Hillary Clinton with " + str(clintonVotes) + " votes.")
             else:
                 raise Exception("Invalid date for polling information. Please use either 16 or 20.")
+        
+        elif (input_action == "annotate"):
+            if input_state not in state_name_data:
+                raise Exception("Sorry, incorrect state abbreviation.")
+
+            input_state_full = state_name_data[input_state]
+
+            print("Determining: " + input_action)
+
+            print("Selected state: " + state_name_data[input_state])
+
+            if args.remove:
+                
+                query = f"""UPDATE county_statistics
+                            SET notes = ""
+                            WHERE state = '{input_state}' AND
+                            county = '{args.county}'
+                """
+
+                query_content.execute(query)
+
+                cnx.commit()
+
+                print(query_content.rowcount, "record(s) affected.")
+
+            else:
+
+                if len(args.note) > 255:
+                    raise Exception("Note is too long! Please use a smaller note.")
+
+                query = f"""UPDATE county_statistics
+                            SET notes = '{args.note}'
+                            WHERE state = '{input_state}' AND
+                            county = '{args.county}'
+                """
+
+                query_content.execute(query)
+
+                cnx.commit()
+
+                print(query_content.rowcount, "record(s) affected.")
+            
+        elif (input_action == "county"):
+            if input_state not in state_name_data:
+                raise Exception("Sorry, incorrect state abbreviation.")
+
+            input_state_full = state_name_data[input_state]
+
+            print("Determining: " + input_action)
+
+            print("Selected state: " + state_name_data[input_state])
+
+            if args.granular == "demographics" or args.granular == "all":
+
+                query1 = f"""SELECT * FROM demographics
+                        WHERE state = '{input_state}' and
+                        county = '{args.county}'
+                """
+                query_content.execute(query1)
+
+                # print(query1)
+                results = query_content.fetchall()
+                # print(results)
+
+                if not results:
+                    raise Exception("Likely an incorrectly spelled county name. Please try again.")
+                
+                c_county, c_state, c_cases, c_deaths, c_pop, c_men, c_women, c_hispanic, c_white, c_black,\
+                c_native, c_asian, c_pacific, c_vac, c_income, c_income_err, c_ipc, c_ipce, c_poverty, c_child_poverty,\
+                c_professional, c_service, c_office, c_construction, c_production, c_drive, c_carpool, c_transit, c_walk,\
+                c_othertransp, c_wfh, c_meancommute, c_employed, c_private_work, c_public_work, c_self_employed,\
+                c_family_work, c_unemployment = results[0]
+
+                print("Demographic Information for " + args.county + " located in " + input_state_full)
+                print("Number of COVID-19 cases: " + str(c_cases))
+                print("Number of COVID-19 deaths: " + str(c_deaths))
+                print("Total population: " + str(c_pop))
+                print("Population of men: " + str(c_men))
+                print("Population of women: " + str(c_women))
+                print("Population perecent of Hispanic: " + str(c_hispanic) + "%")
+                print("Population perecent of White: " + str(c_white) + "%")
+                print("Population perecent of Black: " + str(c_black) + "%")
+                print("Population perecent of Native: " + str(c_native) + "%")
+                print("Population perecent of Pacific: " + str(c_pacific) + "%")
+                print("Number of voting citizens: " + str(c_vac))
+                print("Average Income: $" + str(c_income))
+                print("Average Income Error: $" + str(c_income_err))
+                print("Income Per Capita: $" + str(c_ipc))
+                print("Income Per Capita Error: $" + str(c_ipce))
+                print("Average poverty rate: " + str(c_poverty) + "%")
+                print("Average poverty rate in children: " + str(c_child_poverty) + "%")
+                print("Population percent of professional workers: " + str(c_professional) + "%")
+                print("Population percent of service workers: " + str(c_service) + "%")
+                print("Population percent of office workers: " + str(c_office) + "%")
+                print("Population percent of construction workers: " + str(c_construction) + "%")
+                print("Population percent of production workers: " + str(c_production) + "%")
+                print("Population percent that drive: " + str(c_drive) + "%")
+                print("Population percent that carpool: " + str(c_carpool) + "%")
+                print("Population percent that use transit: " + str(c_transit) + "%")
+                print("Population percent that walk: " + str(c_walk) + "%")
+                print("Population percent that use other transportation: " + str(c_othertransp) + "%")
+                print("Population percent that work from home: " + str(c_wfh) + "%")
+                print("Mean commute time in minutes: " + str(c_meancommute) + " minutes")
+                print("Number of currently employed individuals: " + str(c_employed))
+                print("Population percent in private work: " + str(c_private_work) + "%")
+                print("Population percent in public work: " + str(c_public_work) + "%")
+                print("Population percent that is self-employed: " + str(c_self_employed) + "%")
+                print("Population percent in family work: " + str(c_family_work) + "%")
+                print("Population percent in unemployment: " + str(c_unemployment) + "%")
+                print()
+
+            if args.granular == "historic" or args.granular == "all":
+
+                query2 = f"""SELECT * FROM county_statistics
+                        WHERE state = '{input_state}' and
+                        county = '{args.county}'
+                
+                """
+
+                query_content.execute(query2)
+
+                results = query_content.fetchall()
+                # print(results)
+
+                c_county, c_state, pct16_rep, pct16_dem, votes16, votes16_rep, votes16_dem, pct20_rep, pct20_dem,\
+                votes20, votes20_rep, votes20_dem, c_lat, c_lng, c_notes = results[0]
+
+                print("Historic information of " + args.county  + " located in " + input_state_full)
+                print("Percentage of voters for Democrats in 2020: " + str(pct20_dem) + " %.")
+                print("Percentage of voters for Republicans in 2020: " + str(pct20_rep) + " %.")
+                print("Percentage of voters for Democrats in 2016: " + str(pct16_dem) + " %.")
+                print("Percentage of voters for Republicans in 2016: " + str(pct16_rep) + " %.")
+                print("Total of voters in " + args.county + " in 2020: " + str(votes20) + ".")
+                print("Number of voters for Democrats in 2020: " + str(votes20_dem) + ".")
+                print("Number of voters for Republicans in 2020: " + str(votes20_rep) + ".")
+                print("Total of voters in " + args.county + " in 2016: " + str(votes16) + ".")
+                print("Number of voters for Democrats in 2016: " + str(votes16_dem) + ".")
+                print("Number of voters for Republicans in 2016: " + str(votes16_rep) + ".")
+                print("Latitude: " + str(c_lat))
+                print("Longitutde: " + str(c_lng))
+                print("Notes: " + c_notes)
+
+            elif not args.granular:
+
+                query = f"""SELECT lat, lng, notes FROM county_statistics
+                        WHERE state = '{input_state}' and
+                        county = '{args.county}'
+                """
+
+                query_content.execute(query)
+
+                results = query_content.fetchall()
+
+                if not results:
+                    raise Exception("Likely an incorrectly spelled county name. Please try again.")
+
+                c_lat, c_lng, c_notes = results[0]
+
+                print("County Information on : " + args.county + " located in " + input_state_full)
+                print("Latitude: " + str(c_lat))
+                print("Longitutde: " + str(c_lng))
+                print("Notes: " + c_notes)
+            
+
+        elif (input_action == "state"):
+            if input_state not in state_name_data:
+                raise Exception("Sorry, incorrect state abbreviation.")
+
+            input_state_full = state_name_data[input_state]
+
+            print("Determining: " + input_action)
+
+            print("Selected state: " + state_name_data[input_state])
+
+            if args.granular == "demographics" or args.granular == "all":
+
+                query1 = f"""SELECT state, SUM(cases), SUM(deaths), SUM(TotalPop), SUM(Men), SUM(Women), AVG(Hispanic), AVG(White), AVG(Black), AVG(Native),
+                    AVG(Asian), AVG(Pacific), SUM(VotingAgeCitizen), AVG(Income), AVG(IncomeErr), AVG(IncomePerCap), AVG(IncomePerCapErr), AVG(Poverty),
+                    AVG(ChildPoverty), AVG(Professional), AVG(Service), AVG(Office), AVG(Construction), AVG(Production), AVG(Drive), AVG(Carpool),
+                    AVG(Transit), AVG(Walk), AVG(OtherTransp), AVG(WorkAtHome), AVG(MeanCommute), SUM(Employed), AVG(PrivateWork), AVG(PublicWork),
+                    AVG(SelfEmployed), AVG(FamilyWork), AVG(Unemployment) FROM demographics WHERE state = "LA"
+                """
+                query_content.execute(query1)
+
+                # print(query1)
+                results = query_content.fetchall()
+                # print(results)
+
+                c_state, c_cases, c_deaths, c_pop, c_men, c_women, c_hispanic, c_white, c_black,\
+                c_native, c_asian, c_pacific, c_vac, c_income, c_income_err, c_ipc, c_ipce, c_poverty, c_child_poverty,\
+                c_professional, c_service, c_office, c_construction, c_production, c_drive, c_carpool, c_transit, c_walk,\
+                c_othertransp, c_wfh, c_meancommute, c_employed, c_private_work, c_public_work, c_self_employed,\
+                c_family_work, c_unemployment = results[0]
+
+                print("Demographic Information averaged across counties for " + input_state_full)
+                print("Number of COVID-19 cases: " + str(c_cases))
+                print("Number of COVID-19 deaths: " + str(c_deaths))
+                print("Total population: " + str(c_pop))
+                print("Population of men: " + str(c_men))
+                print("Population of women: " + str(c_women))
+                print("Population perecent of Hispanic: " + str(c_hispanic) + "%")
+                print("Population perecent of White: " + str(c_white) + "%")
+                print("Population perecent of Black: " + str(c_black) + "%")
+                print("Population perecent of Native: " + str(c_native) + "%")
+                print("Population perecent of Pacific: " + str(c_pacific) + "%")
+                print("Number of voting citizens: " + str(c_vac))
+                print("Average Income: $" + str(c_income))
+                print("Average Income Error: $" + str(c_income_err))
+                print("Income Per Capita: $" + str(c_ipc))
+                print("Income Per Capita Error: $" + str(c_ipce))
+                print("Average poverty rate: " + str(c_poverty) + "%")
+                print("Average poverty rate in children: " + str(c_child_poverty) + "%")
+                print("Population percent of professional workers: " + str(c_professional) + "%")
+                print("Population percent of service workers: " + str(c_service) + "%")
+                print("Population percent of office workers: " + str(c_office) + "%")
+                print("Population percent of construction workers: " + str(c_construction) + "%")
+                print("Population percent of production workers: " + str(c_production) + "%")
+                print("Population percent that drive: " + str(c_drive) + "%")
+                print("Population percent that carpool: " + str(c_carpool) + "%")
+                print("Population percent that use transit: " + str(c_transit) + "%")
+                print("Population percent that walk: " + str(c_walk) + "%")
+                print("Population percent that use other transportation: " + str(c_othertransp) + "%")
+                print("Population percent that work from home: " + str(c_wfh) + "%")
+                print("Mean commute time in minutes: " + str(c_meancommute) + " minutes")
+                print("Number of currently employed individuals: " + str(c_employed))
+                print("Population percent in private work: " + str(c_private_work) + "%")
+                print("Population percent in public work: " + str(c_public_work) + "%")
+                print("Population percent that is self-employed: " + str(c_self_employed) + "%")
+                print("Population percent in family work: " + str(c_family_work) + "%")
+                print("Population percent in unemployment: " + str(c_unemployment) + "%")
+                print()
+
+            if args.granular == "historic" or args.granular == "all":
+
+                query2 = f"""SELECT state, AVG(percentage16_Donald_Trump), AVG(percentage16_Hillary_Clinton), SUM(total_votes16), SUM(votes16_Donald_Trump),
+                        SUM(votes16_Hillary_Clinton), AVG(percentage20_Donald_Trump), AVG(percentage20_Joe_Biden), SUM(total_votes20), SUM(votes20_Donald_Trump),
+                        SUM(votes20_Joe_Biden) FROM county_statistics WHERE state = '{input_state}'
+                
+                """
+
+                query_content.execute(query2)
+
+                results = query_content.fetchall()
+                # print(results)
+
+                c_state, pct16_rep, pct16_dem, votes16, votes16_rep, votes16_dem, pct20_rep, pct20_dem,\
+                votes20, votes20_rep, votes20_dem = results[0]
+
+                print("Historic information averaged across counties from " + input_state_full)
+                print("Percentage of voters for Democrats in 2020: " + str(pct20_dem) + " %.")
+                print("Percentage of voters for Republicans in 2020: " + str(pct20_rep) + " %.")
+                print("Percentage of voters for Democrats in 2016: " + str(pct16_dem) + " %.")
+                print("Percentage of voters for Republicans in 2016: " + str(pct16_rep) + " %.")
+                print("Total of voters in " + input_state_full + " in 2020: " + str(votes20) + ".")
+                print("Number of voters for Democrats in 2020: " + str(votes20_dem) + ".")
+                print("Number of voters for Republicans in 2020: " + str(votes20_rep) + ".")
+                print("Total of voters in " + input_state_full + " in 2016: " + str(votes16) + ".")
+                print("Number of voters for Democrats in 2016: " + str(votes16_dem) + ".")
+                print("Number of voters for Republicans in 2016: " + str(votes16_rep) + ".")
+
+            if args.granular != "historic" or args.granular != "demographics" or args.granular != "all":
+                raise Exception("Incorrect granularity. Must select one for the state level. Please select from either historic, demographics, or all.")
 
         # f.close()

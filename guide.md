@@ -83,9 +83,12 @@ They will vary in different needed flags to supplement the action.
 If you would like to know which state refers to which abbreviation (as our commands take in abbreviations only), please refer to the file `US_states.json`.
 ## Flags
 `-s, --state: State that you want to reference (please use abbreviation, i.e. NY for New York)`\
-`-c, --candidate: Candidate that you want to know about. Please use 'jb' for Joe Biden or 'dt' for Donald Trump`\
+`-c, --county: County that you want to reference (please use full name i.e. Broward)`\
+`-p, --presidental_candidate: Candidate that you want to know about. Please use 'jb' for Joe Biden or 'dt' for Donald Trump`\
 `-g, --granular: Granular properties when searching up tweets information, demographics, and more.`\
-`-d, --date: 2nd half of the queried year for polling data, i.e. 16 for 2016, 20 for 2020`
+`-d, --date: 2nd half of the queried year for polling data, i.e. 16 for 2016, 20 for 2020`\
+`-n, --note: Used to append annotations to a county to be stored in the database.`\
+`-r, --remove: Pass this flag when performing the 'annotate' action to remove it entirely.`
 
 ## Winner (or Loser) in a State
 `python3 app.py winner -s NY`\
@@ -98,16 +101,16 @@ You must specify the state in order for the action to succeed.
 
 Possible granular options for `-g` flag are: `likes`, `retweets`, `followers`, where they search for *most* of the specific option in a tweet given the parameters of the command.
 
-`python3 app.py tweets -g retweets -c dt`
+`python3 app.py tweets -g retweets -p dt`
 
 This will show tweet information including the tweet, the number of retweets, who it was by, and where the tweet was made from (if possible to determine), about the specified candidate.
 
 
-`python3 app.py tweets -s NY -c jb`
+`python3 app.py tweets -s NY -p jb`
 
 This will show the number of tweets about the specified candidate in the specified state.
 
-`python3 app.py tweets -s IL -c dt -g likes`
+`python3 app.py tweets -s IL -p dt -g likes`
 
 This will show tweet information including the tweet, the number of likes, who it was by, and where the tweet was made from (if possible to determine), all from the specified state about the specified candidate.
 
@@ -132,3 +135,35 @@ This will show stats for the number of votes for *polls* in the 2016 election pr
 `python3 app.py polling -s NV`
 
 This will show stats for the number of votes for *polls* in the 2020 election prior to the actual election in Nevada. This shows votes for the top 3 candidates in descending order (typically Trump and Biden round out the first two candidates, with the third candidate shown for interest).
+
+## Annotate
+
+You can either choose to add an annotation using `-n` and the annotation immediately following it, or remove the annotation. You must also specify the county name and the state of the county thaT you wish to add an annotation to. Note that annotations are limited to 255 characters.
+
+`python3 app.py annotate -s NY -c Queens -n "Very popular location!"`
+
+This will add the string 'Very popular location!' to the county called Queens located in New York.
+
+`python3 app.py annotate -s NY -c Queens -r`
+
+This will reverse (effectively erase the note) attached to the county called Queens located in New York.
+
+## County
+
+Allows user to search specific information about a county, whether in general, demographics-related, historic in votes related, or all of the above. The `-g` granularity options are `demographics`, `historic`, `all` for the corresponding amount of information, with no `-g` flag at all for general information.
+
+`python3 app.py county -s LA -c Acadia`
+
+This will provide surface level information about the county such as longitutde and latitutde, and any annotations.
+
+`python3 app.py county -c Anchorage -s AK -g demographics`
+
+This will provide demographic related information in the county of Anchorage in the state of Alaska.
+
+## State
+
+Allows user to search specific information about a state, whether it is demographics-related, historic in votes related, or both of the above. The `-g` granularity options are `demographics`, `historic`, `all` for the corresponding amount of information. This must be passed with a `-g` flag.
+
+`python3 app.py state -s IN -g historic`
+
+This will provide the historic voting information about Indiana (averaged or summed across all the counties in the state).

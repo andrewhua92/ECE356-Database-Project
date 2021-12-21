@@ -136,7 +136,7 @@ CREATE TABLE county_statistics_all (
     OtherTransp DECIMAL(3,1),
     WorkAtHome DECIMAL(3,1),
     MeanCommute DECIMAL(3,1),
-    Employed DECIMAL(3,1),
+    Employed INT,
     PrivateWork DECIMAL(3,1),
     PublicWork DECIMAL(3,1),
     SelfEmployed DECIMAL(3,1),
@@ -158,7 +158,8 @@ CREATE TABLE county_statistics (
     votes20_Donald_Trump INT,
     votes20_Joe_Biden INT,
     lat DECIMAL(5,2),
-    lng DECIMAL(5,2)
+    lng DECIMAL(5,2),
+    notes VARCHAR(255) DEFAULT ""
 );
 
 CREATE TABLE demographics (
@@ -194,7 +195,7 @@ CREATE TABLE demographics (
     OtherTransp DECIMAL(3,1),
     WorkAtHome DECIMAL(3,1),
     MeanCommute DECIMAL(3,1),
-    Employed DECIMAL(3,1),
+    Employed INT,
     PrivateWork DECIMAL(3,1),
     PublicWork DECIMAL(3,1),
     SelfEmployed DECIMAL(3,1),
@@ -274,10 +275,10 @@ FROM county_statistics_all;
 INSERT INTO demographics 
 (county, state, cases, deaths, TotalPop, Men, Women, Hispanic, White, Black, Native, Asian, Pacific, VotingAgeCitizen, Income, IncomeErr,
 IncomePerCap, IncomePerCapErr, Poverty, ChildPoverty, Professional, Service, Office, Construction, Production, Drive, Carpool, Transit,
-Walk, OtherTransp, WorkAtHome, MeanCommute, Employed, PrivateWork, SelfEmployed, FamilyWork, Unemployment)
+Walk, OtherTransp, WorkAtHome, MeanCommute, Employed, PrivateWork, PublicWork, SelfEmployed, FamilyWork, Unemployment)
 SELECT county, state, cases, deaths, TotalPop, Men, Women, Hispanic, White, Black, Native, Asian, Pacific, VotingAgeCitizen, Income, IncomeErr,
 IncomePerCap, IncomePerCapErr, Poverty, ChildPoverty, Professional, Service, Office, Construction, Production, Drive, Carpool, Transit,
-Walk, OtherTransp, WorkAtHome, MeanCommute, Employed, PrivateWork, SelfEmployed, FamilyWork, Unemployment
+Walk, OtherTransp, WorkAtHome, MeanCommute, Employed, PrivateWork, PublicWork, SelfEmployed, FamilyWork, Unemployment
 FROM county_statistics_all;
 
 LOAD DATA LOCAL INFILE 'trump_biden_polls.csv'
