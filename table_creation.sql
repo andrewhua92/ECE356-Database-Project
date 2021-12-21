@@ -1,5 +1,5 @@
 -- Creating table for the tweet API metadata
-CREATE TABLE tweet {
+CREATE TABLE tweet (
     party VARCHAR(3),
     created_at DATETIME NOT NULL,
     tweet_id DOUBLE NOT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE tweet {
     state VARCHAR(255),
     state_code VARCHAR(2),
     collected_at DATETIME
-};
+);
 
 CREATE TABLE hashtag_donaldtrump (
     created_at DATETIME NOT NULL,
