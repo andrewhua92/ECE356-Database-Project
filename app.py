@@ -48,6 +48,10 @@ if __name__ == "__main__":
 
         # python in this current version probably doesn't have switch case still, so we will use if/else instead
         # within each action, we will custom build a query to the MYSQL server
+
+        # Input action: loser
+        # Flags: -s
+        # Determines the loser of a specific state
         if (input_action == "loser"):
             if input_state and input_state not in state_name_data:
                 raise Exception("Sorry, incorrect state abbreviation.")
@@ -60,9 +64,6 @@ if __name__ == "__main__":
 
             print("Determining: " + input_action)
 
-            # because of how the president_county_candidate CSV is, determining winner should be through
-            # whoever has biggest number of counties won in a state (first past the post)
-            # WIP query
             query = f"""WITH voteCount AS
                             (SELECT candidate, SUM(total_votes) AS votes FROM president_county_candidate WHERE
                                 state = '{input_state_full}'
@@ -77,14 +78,21 @@ if __name__ == "__main__":
 
             results = query_content.fetchall()
 
+            # results returns a list of tuples, hence, the double array precision
             placeholder = results[0][0]
 
+            # cheeky piece of code since we either will have Joe or Donald as a winner... 
+            # so a winner is simply the complement of the other
             if (placeholder == "Joe Biden"):
                 placeholder = "Donald Trump"
             else:
                 placeholder = "Joe Biden"
 
             print("Loser in " + input_state_full + " is " + placeholder)
+        
+        # Input action: winner
+        # Flags: -s
+        # Determines the inner of a specific state
         elif (input_action == "winner"):
             if input_state and input_state not in state_name_data:
                 raise Exception("Sorry, incorrect state abbreviation.")
@@ -115,8 +123,14 @@ if __name__ == "__main__":
             placeholder = results[0][0]
 
             print("Winner in " + input_state_full + " is " + placeholder)
+
+        # Input action: tweets
+        # Flags: -c, -g (optional), -s (optional)
+        # Provides information about a specific candidate (Joe or Donald)
+        # Can lower scope to the state level
+        # Can be explicit in determining the 'most' of a property of a tweet (i.e. likes, retweets, etc)
         elif (input_action == "tweets"):
-            # we can try to move the overhead of this into the actual arg parser so it'll be easier to sanitize
+
             print("Determining: " + input_action) 
 
             if not args.candidate:
@@ -213,6 +227,11 @@ if __name__ == "__main__":
                 placeholder = str(results[0][0])
 
                 print("The number of tweets about " + candidate + " in " + input_state_full + " is " + placeholder)
+
+        # Input action: demographics
+        # Flags: -g, -s
+        # Figures out on a state-wide level the representation of a voting population of a demographic
+        # Also always includes historic data to supplement the demographic information
         elif (input_action == "demographics"):
 
             print("Determining: " + input_action)
@@ -267,13 +286,8 @@ if __name__ == "__main__":
 
                 results = query_content.fetchall()
 
-                # print(results)
                 avg_rep_pct_20, avg_rep_pct_16, avg_rep_pct_diff, avg_dem_pct_20, avg_dem_pct_16, avg_dem_pct_diff, avg_rep_votes_20,avg_rep_votes_16, avg_rep_votes_diff, avg_dem_votes_20, avg_dem_votes_16, avg_dem_votes_diff, granular_pct = results[0]
-                
-                # print(granular_pct, avg_rep_pct_20, avg_rep_pct_16, avg_rep_pct_diff, 
-                # avg_dem_pct_20, avg_dem_pct_16, avg_dem_pct_diff, avg_rep_votes_20,
-                # avg_rep_votes_16, avg_rep_votes_diff, avg_dem_votes_20, avg_dem_votes_16,
-                # avg_dem_votes_diff)
+
                 if granular in ethnic_granular or granular in occupation_granular or granular in transportation_granular or granular in employment_granular:
                     print("For the US 2020 Election, the " + granular + " demographic votes in " + input_state_full + " represented " + str(granular_pct) + "% of all votes.")
                 elif granular in gender_granular:
@@ -299,6 +313,9 @@ if __name__ == "__main__":
             else:
                 raise Exception("Wrong type of demographic.")
 
+        # Input action: polling
+        # Flags: -s, -d (optional)
+        # Provides the polling data for a state in percentages and vote count, including comparison to the 2016 election
         elif (input_action == "polling"):
 
             if input_state not in state_name_data:
