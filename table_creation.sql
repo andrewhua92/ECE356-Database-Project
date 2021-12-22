@@ -1,5 +1,5 @@
 -- Creating table for the tweet API metadata
-CREATE TABLE tweet (
+CREATE TABLE Tweet (
     party VARCHAR(3),
     created_at DATETIME NOT NULL,
     tweet_id DOUBLE NOT NULL,
@@ -21,10 +21,11 @@ CREATE TABLE tweet (
     continent VARCHAR(255),
     state VARCHAR(255),
     state_code VARCHAR(2),
-    collected_at DATETIME
+    collected_at DATETIME,
+    PRIMARY KEY (tweet_id)
 );
 
-CREATE TABLE hashtag_donaldtrump (
+CREATE TABLE Hashtag_donaldtrump (
     created_at DATETIME NOT NULL,
     tweet_id DOUBLE NOT NULL,
     tweet VARCHAR(1000) NOT NULL,
@@ -45,10 +46,12 @@ CREATE TABLE hashtag_donaldtrump (
     continent VARCHAR(255),
     state VARCHAR(255),
     state_code VARCHAR(2),
-    collected_at DATETIME
+    collected_at DATETIME,
+    PRIMARY KEY (tweet_id),
+    FOREIGN KEY (tweet_id) REFERENCES tweet(tweet_id)
 );
 
-CREATE TABLE hashtag_joebiden (
+CREATE TABLE Hashtag_joebiden (
     created_at DATETIME NOT NULL,
     tweet_id DOUBLE NOT NULL,
     tweet VARCHAR(1000) NOT NULL,
@@ -69,12 +72,14 @@ CREATE TABLE hashtag_joebiden (
     continent VARCHAR(255),
     state VARCHAR(255),
     state_code VARCHAR(2),
-    collected_at DATETIME
+    collected_at DATETIME,
+    PRIMARY KEY (tweet_id),
+    FOREIGN KEY (tweet_id) REFERENCES tweet(tweet_id)
 );
 
 -- Loading data for the tweet API metadata
 LOAD DATA LOCAL INFILE 'hashtag_donaldtrump.csv'
-INTO TABLE hashtag_donaldtrump
+INTO TABLE Hashtag_donaldtrump
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 ESCAPED BY '\b'
@@ -82,7 +87,7 @@ LINES TERMINATED BY '\n'
 IGNORE 1 ROWS;
 
 LOAD DATA LOCAL INFILE 'hashtag_joebiden.csv'
-INTO TABLE hashtag_joebiden
+INTO TABLE Hashtag_joebiden
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 ESCAPED BY '\b'
@@ -90,7 +95,7 @@ LINES TERMINATED BY '\n'
 IGNORE 1 ROWS;
 
 -- Creating table for the 2020 general election data, and previous election data (demographics included for now)
-CREATE TABLE county_statistics_all (
+CREATE TABLE County_statistics_all (
     id INT NOT NULL,
     county VARCHAR(255) NOT NULL,
     state VARCHAR(2) NOT NULL,
@@ -144,7 +149,7 @@ CREATE TABLE county_statistics_all (
     Unemployment DECIMAL(3,1)
 );
 
-CREATE TABLE county_statistics (
+CREATE TABLE County_statistics (
     county VARCHAR(255) NOT NULL,
     state VARCHAR(2) NOT NULL,
     percentage16_Donald_Trump DECIMAL(4,3),
@@ -159,10 +164,11 @@ CREATE TABLE county_statistics (
     votes20_Joe_Biden INT,
     lat DECIMAL(5,2),
     lng DECIMAL(5,2),
-    notes VARCHAR(255) DEFAULT ""
+    notes VARCHAR(255) DEFAULT "",
+    PRIMARY KEY (county, state)
 );
 
-CREATE TABLE demographics (
+CREATE TABLE Demographics (
     county VARCHAR(255) NOT NULL,
     state VARCHAR(2) NOT NULL,
     cases INT,
@@ -200,10 +206,13 @@ CREATE TABLE demographics (
     PublicWork DECIMAL(3,1),
     SelfEmployed DECIMAL(3,1),
     FamilyWork DECIMAL(3,1),
-    Unemployment DECIMAL(3,1)
+    Unemployment DECIMAL(3,1),
+    PRIMARY KEY (county, state),
+    FOREIGN KEY (county) REFERENCES County_statistics(county),
+    FOREIGN KEY (state) REFERENCES County_statistics(state)
 );
 
-CREATE TABLE trump_biden_polls (
+CREATE TABLE Trump_biden_polls (
     question_id INT NOT NULL,
     poll_id INT NOT NULL,
     cycle INT,
@@ -241,10 +250,11 @@ CREATE TABLE trump_biden_polls (
     candidate_id INT NOT NULL,
     candidate_name VARCHAR(50),
     candidate_party VARCHAR(5),
-    pct DECIMAL(4,2)
+    pct DECIMAL(4,2),
+    PRIMARY KEY (question_id, poll_id, pollster)
 );
 
-CREATE TABLE trump_clinton_polls (
+CREATE TABLE Trump_clinton_polls (
     id INT NOT NULL,
     start_date DATE,
     end_date DATE,
@@ -255,24 +265,25 @@ CREATE TABLE trump_clinton_polls (
     population VARCHAR(2),
     clinton_pct DECIMAL(4,2),
     trump_pct DECIMAL(4,2),
-    dem_lead DECIMAL(6,4)
+    dem_lead DECIMAL(6,4),
+    PRIMARY KEY (id, pollster)
 );
 
 LOAD DATA LOCAL INFILE 'county_statistics.csv'
-INTO TABLE county_statistics_all
+INTO TABLE County_statistics_all
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 IGNORE 1 ROWS;
 
-INSERT INTO county_statistics
+INSERT INTO County_statistics
 (county, state, percentage16_Donald_Trump, percentage16_Hillary_Clinton, total_votes16, votes16_Donald_Trump, votes16_Hillary_Clinton,
 percentage20_Donald_Trump, percentage20_Joe_Biden, total_votes20, votes20_Donald_Trump, votes20_Joe_Biden, lat, lng)
 SELECT county, state, percentage16_Donald_Trump, percentage16_Hillary_Clinton, total_votes16, votes16_Donald_Trump, votes16_Hillary_Clinton,
 percentage20_Donald_Trump, percentage20_Joe_Biden, total_votes20, votes20_Donald_Trump, votes20_Joe_Biden, lat, lng 
 FROM county_statistics_all;
 
-INSERT INTO demographics 
+INSERT INTO Demographics 
 (county, state, cases, deaths, TotalPop, Men, Women, Hispanic, White, Black, Native, Asian, Pacific, VotingAgeCitizen, Income, IncomeErr,
 IncomePerCap, IncomePerCapErr, Poverty, ChildPoverty, Professional, Service, Office, Construction, Production, Drive, Carpool, Transit,
 Walk, OtherTransp, WorkAtHome, MeanCommute, Employed, PrivateWork, PublicWork, SelfEmployed, FamilyWork, Unemployment)
@@ -282,7 +293,7 @@ Walk, OtherTransp, WorkAtHome, MeanCommute, Employed, PrivateWork, PublicWork, S
 FROM county_statistics_all;
 
 LOAD DATA LOCAL INFILE 'trump_biden_polls.csv'
-INTO TABLE trump_biden_polls
+INTO TABLE Trump_biden_polls
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
@@ -296,37 +307,45 @@ nationwide_batch = (@var27 = 'true' or @var27 = 'TRUE'),
 ranked_choice_reallocated = (@var28 = 'true' or @var28 = 'TRUE');
 
 LOAD DATA LOCAL INFILE 'trump_clinton_polls.csv'
-INTO TABLE trump_clinton_polls
+INTO TABLE Trump_clinton_polls
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 IGNORE 1 ROWS;
 
 -- Creating tables for the US 2020 Election Results for the president
-CREATE TABLE president_county_candidate (
+CREATE TABLE President_county_candidate (
     state VARCHAR(50),
     county VARCHAR(50),
     candidate VARCHAR(50),
     party VARCHAR(3),
     total_votes INT,
-    won BOOLEAN
+    won BOOLEAN,
+    PRIMARY KEY (county, state),
+    FOREIGN KEY (county) REFERENCES County_statistics(county),
+    FOREIGN KEY (state) REFERENCES County_statistics(state)
 );
 
-CREATE TABLE president_county (
+CREATE TABLE President_county (
     state VARCHAR(50),
     county VARCHAR(50),
     current_votes INT,
     total_votes INT,
-    percent DECIMAL(5,2)
+    percent DECIMAL(5,2),
+    PRIMARY KEY (county, state),
+    FOREIGN KEY (county) REFERENCES County_statistics(county),
+    FOREIGN KEY (state) REFERENCES County_statistics(state)
 );
 
-CREATE TABLE president_state (
+CREATE TABLE President_state (
     state VARCHAR(50),
     votes INT
+    PRIMARY KEY (state)
+    FOREIGN KEY (state) REFERENCES County_statistics(state)
 );
 
 LOAD DATA LOCAL INFILE 'president_county_candidate.csv'
-INTO TABLE president_county_candidate
+INTO TABLE President_county_candidate
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
@@ -335,14 +354,14 @@ IGNORE 1 ROWS
 SET won = (@var6 = 'True');
 
 LOAD DATA LOCAL INFILE 'president_county.csv'
-INTO TABLE president_county
+INTO TABLE President_county
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 IGNORE 1 ROWS;
 
 LOAD DATA LOCAL INFILE 'president_state.csv'
-INTO TABLE president_state
+INTO TABLE President_state
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
