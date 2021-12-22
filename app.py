@@ -572,7 +572,7 @@ if __name__ == "__main__":
                     AVG(Asian), AVG(Pacific), SUM(VotingAgeCitizen), AVG(Income), AVG(IncomeErr), AVG(IncomePerCap), AVG(IncomePerCapErr), AVG(Poverty),
                     AVG(ChildPoverty), AVG(Professional), AVG(Service), AVG(Office), AVG(Construction), AVG(Production), AVG(Drive), AVG(Carpool),
                     AVG(Transit), AVG(Walk), AVG(OtherTransp), AVG(WorkAtHome), AVG(MeanCommute), SUM(Employed), AVG(PrivateWork), AVG(PublicWork),
-                    AVG(SelfEmployed), AVG(FamilyWork), AVG(Unemployment) FROM demographics WHERE state = "LA"
+                    AVG(SelfEmployed), AVG(FamilyWork), AVG(Unemployment) FROM Demographics WHERE state = "LA"
                 """
                 query_content.execute(query1)
 
