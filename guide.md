@@ -77,7 +77,7 @@ Accessing directory of Docker container to verify contents:
 # Sample Commands for the Application
 
 The core of every command requires an action. The following actions are allowed:
-`winner`, `loser`, `demographics`, `polling`, `tweets`.
+`winner`, `loser`, `demographics`, `polling`, `tweets`, `annotate`, `county`, `state`.
 They will vary in different needed flags to supplement the action.
 
 If you would like to know which state refers to which abbreviation (as our commands take in abbreviations only), please refer to the file `US_states.json`.
