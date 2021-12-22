@@ -87,7 +87,7 @@ ESCAPED BY '\b'
 LINES TERMINATED BY '\n'
 IGNORE 1 ROWS;
 
-LOAD DATA LOCAL INFILE 'hashtag_donaldtrump.csv'
+LOAD DATA LOCAL INFILE 'hashtag_joebiden.csv'
 INTO TABLE Tweet
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
@@ -342,26 +342,34 @@ CREATE TABLE President_state (
     PRIMARY KEY (state)
 );
 
+-- county names are NOT the same as ones in county_statistics...
 CREATE TABLE President_county_candidate (
     state VARCHAR(50),
-    county VARCHAR(50),
+    county VARCHAR(255) NOT NULL COLLATE utf8_bin,
     candidate VARCHAR(50),
     party VARCHAR(3),
     total_votes INT,
     won BOOLEAN,
-    PRIMARY KEY (county, state),
+    PRIMARY KEY (state, county, candidate),
     FOREIGN KEY (state) REFERENCES President_state(state)
 );
 
 CREATE TABLE President_county (
     state VARCHAR(50),
-    county VARCHAR(50),
+    county VARCHAR(255) NOT NULL COLLATE utf8_bin,
     current_votes INT,
     total_votes INT,
     percent DECIMAL(5,2),
-    PRIMARY KEY (county, state),
+    PRIMARY KEY (state, county),
     FOREIGN KEY (state) REFERENCES President_state(state)
 );
+
+LOAD DATA LOCAL INFILE 'president_state.csv'
+INTO TABLE President_state
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;
 
 LOAD DATA LOCAL INFILE 'president_county_candidate.csv'
 INTO TABLE President_county_candidate
@@ -374,13 +382,6 @@ SET won = (@var6 = 'True');
 
 LOAD DATA LOCAL INFILE 'president_county.csv'
 INTO TABLE President_county
-FIELDS TERMINATED BY ','
-ENCLOSED BY '"'
-LINES TERMINATED BY '\n'
-IGNORE 1 ROWS;
-
-LOAD DATA LOCAL INFILE 'president_state.csv'
-INTO TABLE President_state
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
