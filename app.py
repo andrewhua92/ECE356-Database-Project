@@ -566,6 +566,9 @@ if __name__ == "__main__":
 
             print("Selected state: " + state_name_data[input_state])
 
+            if args.granular != "historic" and args.granular != "demographics" and args.granular != "all":
+                raise Exception("Incorrect granularity. Must select one for the state level. Please select from either historic, demographics, or all.")
+
             if args.granular == "demographics" or args.granular == "all":
 
                 query1 = f"""SELECT state, SUM(cases), SUM(deaths), SUM(TotalPop), SUM(Men), SUM(Women), AVG(Hispanic), AVG(White), AVG(Black), AVG(Native),
@@ -652,7 +655,5 @@ if __name__ == "__main__":
                 print("Number of voters for Democrats in 2016: " + str(votes16_dem) + ".")
                 print("Number of voters for Republicans in 2016: " + str(votes16_rep) + ".")
 
-            if args.granular != "historic" or args.granular != "demographics" or args.granular != "all":
-                raise Exception("Incorrect granularity. Must select one for the state level. Please select from either historic, demographics, or all.")
-
+           
         # f.close()
