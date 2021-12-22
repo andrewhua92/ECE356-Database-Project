@@ -116,7 +116,7 @@ This will show tweet information including the tweet, the number of likes, who i
 
 ## Demographics
 
-Possible granular options for `-g` flags are: `cases`, `deaths`, `men`, `women`, `hispanic`, `white`, `black`, `native`, `asian`, `pacific`, `poverty`, `childPoverty`, `votingAgeCitizen`, `income`, `professional`, `service`,  `office`, `construction`, `production`, `drive`, `carpool`, `transit`, `walk`, `otherTransp`, `workAtHome`, `meanCommute`, `employed`,`privateWork`,`publicWork`,`selfEmployed`,`familyWork`,`unemployment`
+Possible granular options for `-g` flags are: `cases`, `deaths`, `men`, `women`, `hispanic`, `white`, `black`, `native`, `asian`, `pacific`, `poverty`, `childPoverty`, `votingAgeCitizen`, `income`, `incomeerr`, `incomepercap`, `incomepercaperr` `professional`, `service`,  `office`, `construction`, `production`, `drive`, `carpool`, `transit`, `walk`, `otherTransp`, `workAtHome`, `meanCommute`, `employed`,`privateWork`,`publicWork`,`selfEmployed`,`familyWork`,`unemployment`
 
 Note that you can only use one at a time. The command will output statistics about that demographic, and also supplement it with differential data from the previous election to see how it (may) have affected turnout.
 

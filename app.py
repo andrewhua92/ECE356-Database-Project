@@ -69,7 +69,7 @@ if __name__ == "__main__":
             print("Determining: " + input_action)
 
             query = f"""WITH voteCount AS
-                            (SELECT candidate, SUM(total_votes) AS votes FROM president_county_candidate WHERE
+                            (SELECT candidate, SUM(total_votes) AS votes FROM President_county_candidate WHERE
                                 state = '{input_state_full}'
                                 GROUP BY candidate
                                 ORDER BY SUM(total_votes) DESC)
@@ -110,7 +110,7 @@ if __name__ == "__main__":
             print("Determining: " + input_action)
 
             query = f"""WITH voteCount AS
-                            (SELECT candidate, SUM(total_votes) AS votes FROM president_county_candidate WHERE
+                            (SELECT candidate, SUM(total_votes) AS votes FROM President_county_candidate WHERE
                                 state = '{input_state_full}'
                                 GROUP BY candidate
                                 ORDER BY SUM(total_votes) DESC)
@@ -122,7 +122,6 @@ if __name__ == "__main__":
             query_content.execute(query)
 
             results = query_content.fetchall()
-
             # results returns a list of tuples, hence, the double array precision
             placeholder = results[0][0]
 
@@ -152,8 +151,8 @@ if __name__ == "__main__":
                 if granular in granular_options:
                     if granular in metadata_options:
                         if not args.state: 
-                            query = f""" SELECT user_screen_name, {granular}, state, created_at, tweet FROM hashtag_{tableQuery}
-                                WHERE {granular} = (SELECT MAX({granular}) FROM hashtag_{tableQuery})
+                            query = f""" SELECT user_screen_name, {granular}, state, created_at, tweet FROM Hashtag_{tableQuery}
+                                WHERE {granular} = (SELECT MAX({granular}) FROM Hashtag_{tableQuery})
                             """
                             query_content.execute(query)
 
@@ -184,7 +183,7 @@ if __name__ == "__main__":
                             print("Selected state: " + state_name_data[input_state])
 
                             query = f"""WITH stateTweetData AS
-                                            (SELECT user_screen_name, {granular}, state, created_at, tweet FROM hashtag_{tableQuery}
+                                            (SELECT user_screen_name, {granular}, state, created_at, tweet FROM Hashtag_{tableQuery}
                                                 where state = '{input_state_full}')
                                         SELECT user_screen_name, {granular}, state, created_at, tweet FROM stateTweetData
                                         WHERE {granular} = (SELECT MAX({granular}) FROM stateTweetData);'
@@ -220,7 +219,7 @@ if __name__ == "__main__":
 
                 tableQuery = "joebiden" if presidental_candidate == "Joe Biden" else "donaldtrump"
 
-                query = f"""SELECT count(*) FROM hashtag_{tableQuery} 
+                query = f"""SELECT count(*) FROM Hashtag_{tableQuery} 
                         WHERE state = '{input_state_full}';
                 """
 
@@ -251,25 +250,28 @@ if __name__ == "__main__":
                 granular = args.granular.lower()
 
                 granular_options = ["cases","deaths","men","women","hispanic","white","black","native","asian","pacific",
-                "poverty","childpoverty","votingagecitizen", "income", "professional", "service", "office",
-                "construction", "production", "drive", "carpool", "transit", "walk", "othertransp","workathome",
-                "meancommute","employed","privatework","publicwork","selfemployed","familywork","unemployment"]
+                "poverty","childpoverty","votingagecitizen", "income", "incomeerr", "incomepercap", "incomepercaperr", "professional", 
+                "service", "office", "construction", "production", "drive", "carpool", "transit", "walk", "othertransp",
+                "workathome", "meancommute","employed","privatework","publicwork","selfemployed","familywork","unemployment"]
 
                 covid_granular = ["cases", "deaths"]
                 gender_granular = ["men", "women"]
                 ethnic_granular = ["hispanic","white","black","native","asian","pacific"]
-                wealth_granular = ["poverty","childpoverty","votingagecitizen", "income"]
+                wealth_granular = ["poverty","childpoverty"]
+                income_granular = ["income", "incomeerr", "incomepercap", "incomepercaperr"]
                 occupation_granular = ["professional", "service", "office","construction", "production"]
                 transportation_granular = ["drive", "carpool", "transit", "walk", "othertransp","workathome","meancommute"]
                 employment_granular = ["employed","privatework","publicwork","selfemployed","familywork","unemployment"]
 
                 granular_query = ""
-                if granular in ethnic_granular or granular in occupation_granular or granular in transportation_granular or granular in employment_granular:
-                    granular_query = f"AVG({granular}) as demographic"
+                if granular == "votingagecitizen" or granular in covid_granular or granular == "employed":
+                    granular_query = f"SUM({granular})"
+                elif granular in ethnic_granular or granular in occupation_granular or granular in transportation_granular or granular in employment_granular or granular in wealth_granular or granular in income_granular:
+                    granular_query = f"AVG({granular})"
                 elif granular in gender_granular:
-                    granular_query = f"(SUM({granular}) / SUM(TotalPop) * 100) as demographic"
+                    granular_query = f"(SUM({granular}) / SUM(TotalPop) * 100)"
                 
-                query = f"""SELECT AVG(percentage20_Donald_Trump),
+                query1 = f"""SELECT AVG(percentage20_Donald_Trump),
                         AVG(percentage16_Donald_Trump),
                         (AVG(percentage20_Donald_Trump) - AVG(percentage16_Donald_Trump)) * 100 as Rep_pct, 
                         AVG(percentage20_Joe_Biden),
@@ -280,20 +282,39 @@ if __name__ == "__main__":
                         (SUM(votes20_Donald_Trump) - SUM(votes16_Donald_Trump)) as Rep_votes, 
                         AVG(votes20_Joe_Biden),
                         AVG(votes16_Hillary_Clinton),
-                        (SUM(votes20_Joe_Biden)-SUM(votes16_Hillary_Clinton)) as Dem_votes,
-                        {granular_query}
-                        FROM county_statistics 
+                        (SUM(votes20_Joe_Biden)-SUM(votes16_Hillary_Clinton)) as Dem_votes
+                        FROM County_statistics 
                         WHERE state = '{input_state}' 
                 """
 
-                query_content.execute(query)
+                query_content.execute(query1)
 
-                results = query_content.fetchall()
+                results1 = query_content.fetchall()
 
                 avg_rep_pct_20, avg_rep_pct_16, avg_rep_pct_diff, avg_dem_pct_20, avg_dem_pct_16, avg_dem_pct_diff, avg_rep_votes_20,avg_rep_votes_16,\
-                avg_rep_votes_diff, avg_dem_votes_20, avg_dem_votes_16, avg_dem_votes_diff, granular_pct = results[0]
+                avg_rep_votes_diff, avg_dem_votes_20, avg_dem_votes_16, avg_dem_votes_diff = results1[0]
 
-                if granular in ethnic_granular or granular in occupation_granular or granular in transportation_granular or granular in employment_granular:
+                query2 = f"""SELECT {granular_query} FROM Demographics 
+                        WHERE state = '{input_state}'
+                """
+
+                query_content.execute(query2)
+
+                results2 = query_content.fetchall()
+
+                granular_pct = results2[0][0]
+
+                if granular == "votingagecitizen":
+                    print("For the US 2020 Election, there were " + str(granular_pct) + " voting age citizens in the state of " + input_state_full)
+                elif granular == "employed":
+                    print("For the US 2020 Election, there were " + str(granular_pct) + " employed individuals in the state of " + input_state_full)
+                elif granular in covid_granular:
+                    print("For the US 2020 Election, there were " + str(granular_pct) + " COVID " + granular + " in the state of " + input_state_full)
+                elif granular in income_granular:
+                    print("For the US 2020 Election, here is the average " + granular + ": " + str(granular_pct) + " in the state of " + input_state_full)
+                elif granular in wealth_granular:
+                    print("For the US 2020 Election, here is the average " + granular + " rate: " + str(granular_pct) + " in the state of " + input_state_full)
+                elif granular in ethnic_granular or granular in occupation_granular or granular in transportation_granular or granular in employment_granular:
                     print("For the US 2020 Election, the " + granular + " demographic votes in " + input_state_full + " represented " + str(granular_pct) + "% of all votes.")
                 elif granular in gender_granular:
                     print("For the US 2020 Election, votes by " + granular + " in " + input_state_full + " represented " + str(granular_pct) + "% of all votes.")
@@ -333,9 +354,8 @@ if __name__ == "__main__":
             print("Selected state: " + state_name_data[input_state])
 
             if args.date == "20":
-                tableQuery = "trump_biden_"
             
-                query=f"""SELECT candidate_name, sum(sample_size * pct / 10) FROM {tableQuery}polls
+                query=f"""SELECT candidate_name, sum(sample_size * pct / 10) FROM Trump_biden_polls
                     WHERE state = '{input_state_full}' 
                     GROUP BY candidate_name
                     ORDER BY SUM(sample_size*pct/10) desc limit 3
@@ -352,8 +372,7 @@ if __name__ == "__main__":
                     votes = round(votes)
                     print(name + " with " + str(votes) + " votes")
             elif args.date == "16":
-                tableQuery = "trump_clinton_"
-                query=f"""SELECT SUM(clinton_pct*sample_size) as Clinton, SUM(trump_pct*sample_size) as Trump FROM trump_clinton_polls
+                query=f"""SELECT SUM(clinton_pct*sample_size) as Clinton, SUM(trump_pct*sample_size) as Trump FROM Trump_clinton_polls
                     WHERE state = '{input_state_full}'
                 """
 
@@ -384,7 +403,7 @@ if __name__ == "__main__":
 
             if args.remove:
                 
-                query = f"""UPDATE county_statistics
+                query = f"""UPDATE County_statistics
                             SET notes = ""
                             WHERE state = '{input_state}' AND
                             county = '{args.county}'
@@ -401,7 +420,7 @@ if __name__ == "__main__":
                 if len(args.note) > 255:
                     raise Exception("Note is too long! Please use a smaller note.")
 
-                query = f"""UPDATE county_statistics
+                query = f"""UPDATE County_statistics
                             SET notes = '{args.note}'
                             WHERE state = '{input_state}' AND
                             county = '{args.county}'
@@ -425,7 +444,7 @@ if __name__ == "__main__":
 
             if args.granular == "demographics" or args.granular == "all":
 
-                query1 = f"""SELECT * FROM demographics
+                query1 = f"""SELECT * FROM Demographics
                         WHERE state = '{input_state}' and
                         county = '{args.county}'
                 """
@@ -484,7 +503,7 @@ if __name__ == "__main__":
 
             if args.granular == "historic" or args.granular == "all":
 
-                query2 = f"""SELECT * FROM county_statistics
+                query2 = f"""SELECT * FROM County_statistics
                         WHERE state = '{input_state}' and
                         county = '{args.county}'
                 
@@ -515,7 +534,7 @@ if __name__ == "__main__":
 
             elif not args.granular:
 
-                query = f"""SELECT lat, lng, notes FROM county_statistics
+                query = f"""SELECT lat, lng, notes FROM County_statistics
                         WHERE state = '{input_state}' and
                         county = '{args.county}'
                 """
@@ -607,7 +626,7 @@ if __name__ == "__main__":
 
                 query2 = f"""SELECT state, AVG(percentage16_Donald_Trump), AVG(percentage16_Hillary_Clinton), SUM(total_votes16), SUM(votes16_Donald_Trump),
                         SUM(votes16_Hillary_Clinton), AVG(percentage20_Donald_Trump), AVG(percentage20_Joe_Biden), SUM(total_votes20), SUM(votes20_Donald_Trump),
-                        SUM(votes20_Joe_Biden) FROM county_statistics WHERE state = '{input_state}'
+                        SUM(votes20_Joe_Biden) FROM County_statistics WHERE state = '{input_state}'
                 
                 """
 
