@@ -308,6 +308,8 @@ if __name__ == "__main__":
                     print("For the US 2020 Election, there were " + str(granular_pct) + " voting age citizens in the state of " + input_state_full)
                 elif granular == "employed":
                     print("For the US 2020 Election, there were " + str(granular_pct) + " employed individuals in the state of " + input_state_full)
+                elif granular == "meancommute":
+                    print("For the US 2020 Election, the mean commute was " + str(granular_pct) + " minutes in the state of " + input_state_full)
                 elif granular in covid_granular:
                     print("For the US 2020 Election, there were " + str(granular_pct) + " COVID " + granular + " in the state of " + input_state_full)
                 elif granular in income_granular:
