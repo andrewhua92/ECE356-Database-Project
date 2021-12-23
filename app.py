@@ -271,11 +271,11 @@ if __name__ == "__main__":
                 elif granular in gender_granular:
                     granular_query = f"(SUM({granular}) / SUM(TotalPop) * 100)"
                 
-                query1 = f"""SELECT AVG(percentage20_Donald_Trump),
-                        AVG(percentage16_Donald_Trump),
+                query1 = f"""SELECT AVG(percentage20_Donald_Trump) * 100,
+                        AVG(percentage16_Donald_Trump) * 100,
                         (AVG(percentage20_Donald_Trump) - AVG(percentage16_Donald_Trump)) * 100 as Rep_pct, 
-                        AVG(percentage20_Joe_Biden),
-                        AVG(percentage16_Hillary_Clinton),
+                        AVG(percentage20_Joe_Biden) * 100,
+                        AVG(percentage16_Hillary_Clinton) * 100,
                         (AVG(percentage20_Joe_Biden)-AVG(percentage16_Hillary_Clinton)) * 100 as Dem_pct,
                         AVG(votes20_Donald_Trump),
                         AVG(votes16_Donald_Trump), 
@@ -415,6 +415,7 @@ if __name__ == "__main__":
 
                 cnx.commit()
 
+                print("Annotation removed.")
                 print(query_content.rowcount, "record(s) affected.")
 
             else:
@@ -432,6 +433,7 @@ if __name__ == "__main__":
 
                 cnx.commit()
 
+                print("Annotation updated.")
                 print(query_content.rowcount, "record(s) affected.")
             
         elif (input_action == "county"):
