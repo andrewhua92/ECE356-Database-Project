@@ -633,8 +633,8 @@ if __name__ == "__main__":
 
             if args.granular == "historic" or args.granular == "all":
 
-                query2 = f"""SELECT state, AVG(percentage16_Donald_Trump), AVG(percentage16_Hillary_Clinton), SUM(total_votes16), SUM(votes16_Donald_Trump),
-                        SUM(votes16_Hillary_Clinton), AVG(percentage20_Donald_Trump), AVG(percentage20_Joe_Biden), SUM(total_votes20), SUM(votes20_Donald_Trump),
+                query2 = f"""SELECT state, AVG(percentage16_Donald_Trump) * 100, AVG(percentage16_Hillary_Clinton) * 100, SUM(total_votes16), SUM(votes16_Donald_Trump),
+                        SUM(votes16_Hillary_Clinton), AVG(percentage20_Donald_Trump) * 100, AVG(percentage20_Joe_Biden) * 100, SUM(total_votes20), SUM(votes20_Donald_Trump),
                         SUM(votes20_Joe_Biden) FROM County_statistics WHERE state = '{input_state}'
                 
                 """
